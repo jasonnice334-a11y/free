@@ -1,7 +1,10 @@
-import re, requests, base64, subprocess, sys, socket
+import re, requests, base64, subprocess, sys, socket, os
 
-# Logo Section (Big ASCII Art)
+# Screen ကို ရှင်းထုတ်ပြီး Logo ပြခြင်း
 def print_logo():
+    # Windows အတွက် 'cls', Linux/Android အတွက် 'clear' သုံးမယ်
+    os.system('cls' if os.name == 'nt' else 'clear')
+    
     logo = """\033[1;32m
   ███████╗██████╗ ███████╗███████╗
   ██╔════╝██╔══██╗██╔════╝██╔════╝
@@ -13,16 +16,14 @@ def print_logo():
     """
     print(logo)
 
-# Android/Termux မှာ ပိုအဆင်ပြေမယ့် Gateway IP ရှာဖွေနည်း
+# Gateway IP ရှာဖွေခြင်း
 def get_gateway_ip():
     try:
-        # နည်းလမ်း ၁ - /proc/net/route ကနေ တိုက်ရိုက်ဖတ်ခြင်း (Permission error ကင်းဝေးစေရန်)
         with open("/proc/net/route") as fh:
             for line in fh:
                 fields = line.strip().split()
                 if fields[1] != '00000000' or not int(fields[3], 16) & 2:
                     continue
-                # Hex IP ကို Decimal IP ပြောင်းခြင်း
                 hex_ip = fields[2]
                 ip_parts = [str(int(hex_ip[i:i+2], 16)) for i in range(0, 8, 2)]
                 return ".".join(reversed(ip_parts))
@@ -30,12 +31,10 @@ def get_gateway_ip():
         pass
     
     try:
-        # နည်းလမ်း ၂ - Socket သုံးပြီး Gateway ရှာခြင်း
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.connect(("8.8.8.8", 80))
         local_ip = s.getsockname()[0]
         s.close()
-        # IP ရဲ့ နောက်ဆုံး digit ကို .1 ပြောင်းကြည့်ခြင်း (Common practice)
         return ".".join(local_ip.split('.')[:-1]) + ".1"
     except Exception:
         return None
@@ -89,7 +88,7 @@ def main():
         return
 
     if not gateway_ip:
-        gateway_ip = input("\033[1;33m[+] Could not auto-detect. Enter Gateway IP (e.g., 192.168.110.1): \033[0m").strip()
+        gateway_ip = input("\033[1;33m[+] Could not auto-detect. Enter Gateway IP: \033[0m").strip()
 
     print(f"\033[1;34m[*] Using Gateway IP: {gateway_ip}\033[0m")
     
