@@ -1,4 +1,4 @@
-import re, requests, base64, subprocess, sys, socket, os
+        import re, requests, base64, subprocess, sys, socket, os
 
 # Screen ကို ရှင်းထုတ်ပြီး Logo ပြခြင်း
 def print_logo():
@@ -76,7 +76,19 @@ def login_voucher(session_id, voucher):
 def main():
     print_logo()
     
-    FIXED_SESSION_URL = "https://portal-as.ruijienetworks.com/api/auth/wifidog?stage=portal&gw_id=984a6b458027&gw_sn=H1T078800132C&gw_address=192.168.110.1&gw_port=2060&ip=192.168.110.142&mac=ca:51:aa:ff:b8:51&slot_num=33&nasip=192.168.1.161&ssid=VLAN233&ustate=0&mac_req=1&url=http%3A%2F%2F192.168.0.1%2F&chap_id=%5C016&chap_challenge=%5C135%5C061%5C367%5C376%5C225%5C324%5C217%5C041%5C213%5C145%5C002%5C251%5C074%5C104%5C267%5C152"
+    # ---------- ပြင်ဆင်ထားတဲ့ အပိုင်း (Session URL ကိုယ်တိုင်ထည့်လို့ရအောင်) ----------
+    # ပုံသေ (Default) URL ကို သိမ်းထားပါတယ်
+    default_url = "https://portal-as.ruijienetworks.com/api/auth/wifidog?stage=portal&gw_id=984a6b458027&gw_sn=H1T078800132C&gw_address=192.168.110.1&gw_port=2060&ip=192.168.110.142&mac=ca:51:aa:ff:b8:51&slot_num=33&nasip=192.168.1.161&ssid=VLAN233&ustate=0&mac_req=1&url=http%3A%2F%2F192.168.0.1%2F&chap_id=%5C016&chap_challenge=%5C135%5C061%5C367%5C376%5C225%5C324%5C217%5C041%5C213%5C145%5C002%5C251%5C074%5C104%5C267%5C152"
+    
+    print("\033[1;36m[~] Enter Session URL (or press Enter to use default):\033[0m")
+    user_session_url = input().strip()
+    
+    if user_session_url:
+        fixed_session_url = user_session_url
+    else:
+        fixed_session_url = default_url
+        print("\033[1;34m[*] Using default URL.\033[0m")
+    # ----------------------------------------------------------------------
     
     gateway_ip = get_gateway_ip()
     
@@ -93,7 +105,8 @@ def main():
     print(f"\033[1;34m[*] Using Gateway IP: {gateway_ip}\033[0m")
     
     print("\033[1;34m[*] Getting Session ID...\033[0m")
-    session_id = get_session_id(FIXED_SESSION_URL, user_mac)
+    # ဒီနေရာမှာ အထက်က သတ်မှတ်လိုက်တဲ့ fixed_session_url ကို သုံးပါမယ်
+    session_id = get_session_id(fixed_session_url, user_mac)
     
     if not session_id:
         print("\033[1;31m[!] Failed to get Session ID.\033[0m")
